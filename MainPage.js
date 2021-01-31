@@ -13,6 +13,7 @@ export default class MainPage extends React.Component<Props>{
             totalMoney:'',
             moneyForItem:0,
             roundArray:[],
+            isInputBoxShow: true,
             isCompleteButtonShow: false,
             isMoneyInputButtonShow: true,
             isMoneyForItemShow: false,
@@ -34,6 +35,7 @@ export default class MainPage extends React.Component<Props>{
             isCompleteButtonShow: true,
             isMoneyForItemShow: true,
             isMoneyInputButtonShow: false,
+            isInputBoxShow: false,
         })
         this.addRoundCard(this,
         1,
@@ -53,6 +55,7 @@ export default class MainPage extends React.Component<Props>{
             totalMoney: '',
             roundArray: [],
             moneyForItem: 0,
+            isInputBoxShow: true,
             isCompleteButtonShow: false,
             isMoneyForItemShow: false,
             isMoneyInputButtonShow: true,
@@ -89,8 +92,7 @@ export default class MainPage extends React.Component<Props>{
 
                 <View style={styles.oneLine}>
                     <Text style={styles.normalText}>총 투자금</Text>
-                    <View style={styles.inputBox}>
-                        {/* <CurrencyInputBox initValue={this.state.totalMoney} caller={this}/> */}
+                    {(this.state.isInputBoxShow) ? <View style={styles.inputBox}>
                         <Input
                             value={this.state.totalMoney}
                             type='decimal-pad'
@@ -98,6 +100,7 @@ export default class MainPage extends React.Component<Props>{
                             onChangeText={(newValue)=>this.onChangeTotalMoney(newValue)}
                             placeholder="투자금 입력" />
                     </View>
+                    : <ReactNativeNumberFormat value={this.state.totalMoney} />}
                 </View>
 
                 {this.state.isMoneyForItemShow && <View style={styles.oneLine}>
