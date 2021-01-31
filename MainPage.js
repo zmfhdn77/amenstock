@@ -59,6 +59,7 @@ export default class MainPage extends React.Component<Props>{
             isCompleteButtonShow: false,
             isMoneyForItemShow: false,
             isMoneyInputButtonShow: true,
+            isInputBoxShow: true,
         })
     }
 
