@@ -2,7 +2,7 @@ import React from 'react';
 import {Alert, KeyboardAvoidingView, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {Button, Input} from 'galio-framework';
 import EachRound from './EachRound';
-import {ReactNativeNumberFormat} from './Util';
+import {CurrencyInputBox, ReactNativeNumberFormat} from './Util';
 
 export default class MainPage extends React.Component<Props>{
 
@@ -10,16 +10,35 @@ export default class MainPage extends React.Component<Props>{
         super(props);
         
         this.state = {
-            totalMoney:0,
+            totalMoney:'',
             moneyForItem:0,
             roundArray:[],
+            isCompleteButtonShow: false,
+            isMoneyInputButtonShow: true,
+            isMoneyForItemShow: false,
         };
     }
 
     onChangeTotalMoney(totalMoney) {
+        const totalMoneyInt = parseInt(totalMoney);
+        const moneyForItem = Math.floor(totalMoneyInt * 0.25)
+
         this.setState({
-            moneyForItem: Math.floor(totalMoney * 0.25),
+            totalMoney: totalMoney,
+            moneyForItem: moneyForItem,
         });
+    }
+
+    onPressMoneyInput() {
+        this.setState({
+            isCompleteButtonShow: true,
+            isMoneyForItemShow: true,
+            isMoneyInputButtonShow: false,
+        })
+        this.addRoundCard(this,
+        1,
+        this.state.moneyForItem * 0.6,
+        this.state.moneyForItem * 0.4)            
     }
 
     addRoundCard(caller, roundCount, firstBuy, secondBuy) {
@@ -31,9 +50,12 @@ export default class MainPage extends React.Component<Props>{
 
     initRoundCard() {
         this.setState({
-            totalMoney: 0,
+            totalMoney: '',
             roundArray: [],
             moneyForItem: 0,
+            isCompleteButtonShow: false,
+            isMoneyForItemShow: false,
+            isMoneyInputButtonShow: true,
         })
     }
 
@@ -68,30 +90,29 @@ export default class MainPage extends React.Component<Props>{
                 <View style={styles.oneLine}>
                     <Text style={styles.normalText}>총 투자금</Text>
                     <View style={styles.inputBox}>
+                        {/* <CurrencyInputBox initValue={this.state.totalMoney} caller={this}/> */}
                         <Input
                             value={this.state.totalMoney}
-                            type='numeric'
+                            type='decimal-pad'
+                            clearButtonMode='always'
                             onChangeText={(newValue)=>this.onChangeTotalMoney(newValue)}
                             placeholder="투자금 입력" />
                     </View>
                 </View>
 
-                <View style={styles.oneLine}>
+                {this.state.isMoneyForItemShow && <View style={styles.oneLine}>
                     <Text style={styles.normalText}>종목 비중</Text>
                     <ReactNativeNumberFormat value={this.state.moneyForItem} />
-                </View>
+                </View>}
 
                 <View style={styles.oneLine}>
-                    <Button 
+                   {this.state.isMoneyInputButtonShow && <Button 
                         style={styles.button} 
-                        onPress={()=>this.addRoundCard(this, 1, 
-                            this.state.moneyForItem * 0.6,
-                            this.state.moneyForItem * 0.4
-                            )}> 투자금 입력 </Button>
-                    <Button
+                        onPress={()=>this.onPressMoneyInput()}> 투자금 입력 </Button>}
+                    {this.state.isCompleteButtonShow && <Button
                         disabled={this.state.secondInputBoxDisabled}
                         style={styles.button}
-                        onPress={()=>this.onEndRound()}>매도 완료</Button>
+                        onPress={()=>this.onEndRound()}>매도 완료</Button>}
                 </View>
 
                 <ScrollView>
