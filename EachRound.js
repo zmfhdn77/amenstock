@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, Alert, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import {Checkbox, Text, Input} from 'galio-framework';
 import {Button} from 'galio-framework';
 import {ReactNativeNumberFormat} from './Util';
@@ -16,8 +16,16 @@ export default class EachRound extends React.Component<Props> {
             firstChecked: false,
             secondChecked: false,
 
+            firtsCheckBoxDisabled: false,
+            secondCheckBoxDisabled: true,
+
             firstBuy: this.props.firstBuy,
             secondBuy: this.props.secondBuy,
+
+            firstInputBoxEditable: true,
+            secondInputBoxEditable: false,
+           
+            buttonDisabled: true,
 
             currentMoney: curMoney,
 
@@ -31,7 +39,18 @@ export default class EachRound extends React.Component<Props> {
 
     onChangeFirstSell(firstSell) {
         const totalSell = this.state.secondSell * 1.0 + firstSell * 1.0;
+        
+        let secondInputBoxEditable = false;
+        let buttonDisabled = true;
+
+        if(totalSell != 0) {
+            secondInputBoxEditable = true;
+            buttonDisabled = false;
+        }
+
         this.setState({
+            secondInputBoxEditable: secondInputBoxEditable,
+            buttonDisabled: buttonDisabled,
             firstSell: firstSell,
             totalSell: totalSell,
         })
@@ -39,6 +58,7 @@ export default class EachRound extends React.Component<Props> {
 
     onChangeSecondSell(secondSell) {
         const totalSell = this.state.firstSell * 1.0 + secondSell * 1.0;
+
         this.setState({
             secondSell: secondSell,
             totalSell: totalSell,
@@ -46,17 +66,25 @@ export default class EachRound extends React.Component<Props> {
     }
 
     onFirstItemChecked() {
-        const curMoney = (this.state.firstChecked) ? this.state.currentMoney + this.state.firstBuy : this.state.currentMoney - this.state.firstBuy;
+        const firstChecked = !this.state.firstChecked;
+        const curMoney = (firstChecked) ? this.state.currentMoney - this.state.firstBuy : this.state.currentMoney + this.state.firstBuy;
+        const secondCheckBoxDisabled = !firstChecked;
+        
         this.setState({
-            firstChecked: !this.state.firstChecked,
+            secondCheckBoxDisabled: secondCheckBoxDisabled,
+            firstChecked: firstChecked,
             currentMoney: curMoney,
         })
     }
 
     onSecondItemChecked() {
-        const curMoney = (this.state.secondChecked) ? this.state.currentMoney + this.state.secondBuy : this.state.currentMoney - this.state.secondBuy;
+        const secondChecked = !this.state.secondChecked;
+        const curMoney = (secondChecked) ? this.state.currentMoney - this.state.secondBuy : this.state.currentMoney + this.state.secondBuy;
+        const firtsCheckBoxDisabled = secondChecked;
+        
         this.setState({
-            secondChecked: !this.state.secondChecked,
+            firtsCheckBoxDisabled: firtsCheckBoxDisabled,
+            secondChecked: secondChecked,
             currentMoney: curMoney,
         })
     }
@@ -73,31 +101,31 @@ export default class EachRound extends React.Component<Props> {
             secondBuy = this.state.currentMoney;
         }
 
+        this.setState({
+            firtsCheckBoxDisabled: true,
+            secondCheckBoxDisabled: true,
+
+            firstInputBoxEditable: false,
+            secondInputBoxEditable: false,
+           
+            buttonDisabled: true,
+        })
+
         this.state.caller.addRoundCard(this.state.caller, this.state.roundCount+1, firstBuy, secondBuy);
         return;
-    }
-
-    onEndRound() {
-        Alert.alert(
-            "거래 완료",
-            "거래가 완료되었습니다. 처음으로 돌아갑니다.",
-            [
-              { text: "OK", onPress: () => this.state.caller.initRoundCard() }
-            ],
-            { cancelable: false }
-          );
     }
 
     render() {
         return (
             <View style={styles.container}>
+                <View style={styles.roundTitle}>
+                    <Text h6>[Round {this.state.roundCount}]</Text>
+                </View>
                 <View style={styles.oneLine}>
-                    <View style={styles.roundTitle}>
-                        <Text h6>Round {this.state.roundCount}</Text>
-                    </View>
                     <View style={styles.lineBox}>
                         <View style={styles.oneLine}>
-                            <Checkbox 
+                            <Checkbox
+                                disabled={this.state.firtsCheckBoxDisabled}
                                 onChange={()=>this.onFirstItemChecked()} 
                                 color="primary" 
                                 label="1차 매수"/>
@@ -106,7 +134,7 @@ export default class EachRound extends React.Component<Props> {
                 
                         <View style={styles.oneLine}>
                             <Checkbox
-                                disabled={!this.state.firstChecked}
+                                disabled={this.state.secondCheckBoxDisabled}
                                 onChange={()=>this.onSecondItemChecked()}
                                 color="primary" 
                                 label="2차 매수"/>
@@ -124,6 +152,7 @@ export default class EachRound extends React.Component<Props> {
                     <Text style={styles.normalText}>1차 매도</Text>
                     <View style={styles.inputBox}>
                         <Input
+                            editable={this.state.firstInputBoxEditable}
                             type='numeric'
                             onChangeText={(newValue)=>this.onChangeFirstSell(newValue)}
                             placeholder="1차 매도금 입력" />
@@ -133,24 +162,22 @@ export default class EachRound extends React.Component<Props> {
                     <Text style={styles.normalText}>2차 매도</Text>
                     <View style={styles.inputBox}>
                         <Input
-                            editable={this.state.firstSell != 0}
+                            editable={this.state.secondInputBoxEditable}
                             type='numeric'
                             onChangeText={(newValue)=>this.onChangeSecondSell(newValue)}
-                            placeholder={(this.state.firstSell != 0) ? "2차 매도금 입력" : "1차 매도 미실시"} />
+                            placeholder={(this.state.secondInputBoxEditable) ? "2차 매도금 입력" : "1차 매도 미실시"} />
                     </View>
                 </View>
                 <View style={styles.oneLine}>
                     <Text style={styles.normalText}>매도금 합계</Text>
-                    <Text style={styles.normalText}>{this.state.totalSell}</Text>
+                    <ReactNativeNumberFormat value={this.state.totalSell} />
                 </View>
 
                 <View style={styles.oneLine}>
-                    <Button 
+                    <Button
+                        disabled={this.state.buttonDisabled}
                         style={styles.button}
                         onPress={()=>this.onNextRound()}>재매수 발생</Button>
-                    <Button 
-                        style={styles.button}
-                        onPress={()=>this.onEndRound()}>매도 완료</Button>
                 </View>
             </View>
         );
@@ -160,18 +187,16 @@ export default class EachRound extends React.Component<Props> {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
+        paddingLeft: 20
     },
     oneLine: {
         flexDirection: "row",
         alignItems:"center",
-        justifyContent: "flex-start",
+        paddingBottom: 10,
     },
     roundTitle: {
-        justifyContent: "flex-start",
-        flex: 1,
+        alignItems: 'center',
+        paddingBottom : 10,
     },
     lineBox: {
         flex:4,
