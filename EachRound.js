@@ -3,6 +3,7 @@ import {StyleSheet, View} from 'react-native';
 import {Checkbox, Text, Input} from 'galio-framework';
 import {Button} from 'galio-framework';
 import {ReactNativeNumberFormat} from './Util';
+import {Card} from 'react-native-elements';
 
 export default class EachRound extends React.Component<Props> {
 
@@ -19,8 +20,8 @@ export default class EachRound extends React.Component<Props> {
             firtsCheckBoxDisabled: false,
             secondCheckBoxDisabled: true,
 
-            firstBuy: this.props.firstBuy,
-            secondBuy: this.props.secondBuy,
+            firstBuy: Math.floor(this.props.firstBuy),
+            secondBuy: Math.floor(this.props.secondBuy),
 
             firstInputBoxEditable: true,
             secondInputBoxEditable: false,
@@ -117,69 +118,70 @@ export default class EachRound extends React.Component<Props> {
 
     render() {
         return (
-            <View style={styles.container}>
-                <View style={styles.roundTitle}>
-                    <Text h6>[Round {this.state.roundCount}]</Text>
-                </View>
-                <View style={styles.oneLine}>
-                    <View style={styles.lineBox}>
-                        <View style={styles.oneLine}>
-                            <Checkbox
-                                disabled={this.state.firtsCheckBoxDisabled}
-                                onChange={()=>this.onFirstItemChecked()} 
-                                color="primary" 
-                                label="1차 매수"/>
-                            <ReactNativeNumberFormat value={this.state.firstBuy} />
+            <Card>
+                <Card.Title>[Round {this.state.roundCount}]</Card.Title>
+                <Card.Divider />
+                <View style={styles.container}>
+                    <View style={styles.oneLine}>
+                        <View style={styles.lineBox}>
+                            <View style={styles.oneLine}>
+                                <Checkbox
+                                    disabled={this.state.firtsCheckBoxDisabled}
+                                    onChange={()=>this.onFirstItemChecked()} 
+                                    color="primary" 
+                                    label="1차 매수"/>
+                                <ReactNativeNumberFormat value={this.state.firstBuy} />
+                            </View>
+                    
+                            <View style={styles.oneLine}>
+                                <Checkbox
+                                    disabled={this.state.secondCheckBoxDisabled}
+                                    onChange={()=>this.onSecondItemChecked()}
+                                    color="primary" 
+                                    label="2차 매수"/>
+                                <ReactNativeNumberFormat value={this.state.secondBuy} />
+                            </View>
                         </View>
-                
-                        <View style={styles.oneLine}>
-                            <Checkbox
-                                disabled={this.state.secondCheckBoxDisabled}
-                                onChange={()=>this.onSecondItemChecked()}
-                                color="primary" 
-                                label="2차 매수"/>
-                            <ReactNativeNumberFormat value={this.state.secondBuy} />
+                    </View>
+
+                    <View style={styles.oneLine}>
+                        <Text style={styles.normalText}>현금 보유 금액</Text>
+                        <ReactNativeNumberFormat value={this.state.currentMoney} />
+                    </View>
+
+                    <View style={styles.oneLine}>
+                        <Text style={styles.normalText}>1차 매도</Text>
+                        <View style={styles.inputBox}>
+                            <Input
+                                editable={this.state.firstInputBoxEditable}
+                                type='numeric'
+                                onChangeText={(newValue)=>this.onChangeFirstSell(newValue)}
+                                placeholder="1차 매도금 입력" />
                         </View>
                     </View>
-                </View>
+                    <View style={styles.oneLine}>
+                        <Text style={styles.normalText}>2차 매도</Text>
+                        <View style={styles.inputBox}>
+                            <Input
+                                editable={this.state.secondInputBoxEditable}
+                                type='numeric'
+                                onChangeText={(newValue)=>this.onChangeSecondSell(newValue)}
+                                placeholder={(this.state.secondInputBoxEditable) ? "2차 매도금 입력" : "1차 매도 미실시"} />
+                        </View>
+                    </View>
+                    <View style={styles.oneLine}>
+                        <Text style={styles.normalText}>매도금 합계</Text>
+                        <ReactNativeNumberFormat value={this.state.totalSell} />
+                    </View>
 
-                <View style={styles.oneLine}>
-                    <Text style={styles.normalText}>현금 보유 금액</Text>
-                    <ReactNativeNumberFormat value={this.state.currentMoney} />
-                </View>
-
-                <View style={styles.oneLine}>
-                    <Text style={styles.normalText}>1차 매도</Text>
-                    <View style={styles.inputBox}>
-                        <Input
-                            editable={this.state.firstInputBoxEditable}
-                            type='numeric'
-                            onChangeText={(newValue)=>this.onChangeFirstSell(newValue)}
-                            placeholder="1차 매도금 입력" />
+                    <View style={styles.oneLine}>
+                        <Button
+                            disabled={this.state.buttonDisabled}
+                            style={styles.button}
+                            onPress={()=>this.onNextRound()}>재매수 발생</Button>
                     </View>
                 </View>
-                <View style={styles.oneLine}>
-                    <Text style={styles.normalText}>2차 매도</Text>
-                    <View style={styles.inputBox}>
-                        <Input
-                            editable={this.state.secondInputBoxEditable}
-                            type='numeric'
-                            onChangeText={(newValue)=>this.onChangeSecondSell(newValue)}
-                            placeholder={(this.state.secondInputBoxEditable) ? "2차 매도금 입력" : "1차 매도 미실시"} />
-                    </View>
-                </View>
-                <View style={styles.oneLine}>
-                    <Text style={styles.normalText}>매도금 합계</Text>
-                    <ReactNativeNumberFormat value={this.state.totalSell} />
-                </View>
-
-                <View style={styles.oneLine}>
-                    <Button
-                        disabled={this.state.buttonDisabled}
-                        style={styles.button}
-                        onPress={()=>this.onNextRound()}>재매수 발생</Button>
-                </View>
-            </View>
+            </Card>
         );
     }
 }

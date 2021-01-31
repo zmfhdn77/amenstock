@@ -4,7 +4,6 @@ import {Button, Input} from 'galio-framework';
 import EachRound from './EachRound';
 import {ReactNativeNumberFormat} from './Util';
 
-
 export default class MainPage extends React.Component<Props>{
 
     constructor(props) {
@@ -19,7 +18,7 @@ export default class MainPage extends React.Component<Props>{
 
     onChangeTotalMoney(totalMoney) {
         this.setState({
-            moneyForItem: totalMoney * 0.25,
+            moneyForItem: Math.floor(totalMoney * 0.25),
         });
     }
 
@@ -53,7 +52,7 @@ export default class MainPage extends React.Component<Props>{
         let roundViewGroup = this.state.roundArray.map((item) =>
         {
             return(
-                <View style={styles.roundCard}>
+                <View>
                     {item}
                 </View>
             );    
@@ -85,7 +84,10 @@ export default class MainPage extends React.Component<Props>{
                 <View style={styles.oneLine}>
                     <Button 
                         style={styles.button} 
-                        onPress={()=>this.addRoundCard(this, 1, this.state.moneyForItem * 0.6, this.state.moneyForItem * 0.4)}> 투자금 입력 </Button>
+                        onPress={()=>this.addRoundCard(this, 1, 
+                            this.state.moneyForItem * 0.6,
+                            this.state.moneyForItem * 0.4
+                            )}> 투자금 입력 </Button>
                     <Button
                         disabled={this.state.secondInputBoxDisabled}
                         style={styles.button}
