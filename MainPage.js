@@ -1,7 +1,8 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {KeyboardAvoidingView, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {Button, Input} from 'galio-framework';
 import EachRound from './EachRound';
+import {ReactNativeNumberFormat} from './Util';
 
 
 export default class MainPage extends React.Component<Props>{
@@ -10,6 +11,7 @@ export default class MainPage extends React.Component<Props>{
         super(props);
         this.state = {
             moneyForItem:0,
+            roundArray:[],
         };
     }
 
@@ -19,14 +21,33 @@ export default class MainPage extends React.Component<Props>{
         });
     }
 
-    addRoundCard(firstBuy, secondBuy) {
-        return <EachRound firstBuy={firstBuy} secondBuy={secondBuy}/>;
+    addRoundCard(caller, roundCount, firstBuy, secondBuy) {
+    
+        this.setState({
+            roundArray: [...this.state.roundArray, <EachRound caller={caller} roundCount={roundCount} firstBuy={firstBuy} secondBuy={secondBuy}/>],
+        })
+    }
+
+    initRoundCard() {
+        this.setState({
+            roundArray: [],
+            moneyForItem: 0,
+        })
     }
 
     render() {
-        let roundCardView = this.addRoundCard(this.state.moneyForItem * 0.6, this.state.moneyForItem * 0.4);
+        let roundViewGroup = this.state.roundArray.map((item) =>
+        {
+            return(
+                <View style={styles.roundCard}>
+                    {item}
+                </View>
+            );    
+        });
+
         return (
-            <View style={styles.container}>
+
+            <KeyboardAvoidingView style={styles.container}>
                 <View style={styles.oneLine}>
                     <Text style={styles.normalText}>총 투자금</Text>
                     <View style={styles.inputBox}>
@@ -35,21 +56,20 @@ export default class MainPage extends React.Component<Props>{
                             onChangeText={(newValue)=>this.onChangeTotalMoney(newValue)}
                             placeholder="투자금 입력" />
                     </View>
-                    <Text style={styles.normalText}>(100%)</Text>
                 </View>
 
                 <View style={styles.oneLine}>
                     <Text style={styles.normalText}>종목 비중</Text>
-                    <Text style={styles.normalText}>{this.state.moneyForItem}</Text>
-                    <Text style={styles.normalText}>(25%)</Text>
+                    <ReactNativeNumberFormat value={this.state.moneyForItem} />
                 </View>
 
                 <Button 
                     style={styles.button} 
-                    onPress={()=>this.addRoundCard()}> 투자금 입력 </Button>
-
-                {roundCardView}
-            </View>
+                    onPress={()=>this.addRoundCard(this, 1, this.state.moneyForItem * 0.6, this.state.moneyForItem * 0.4)}> 투자금 입력 </Button>
+                    <ScrollView>
+                        {roundViewGroup}
+                    </ScrollView>
+            </KeyboardAvoidingView>
         );
     }
 }
@@ -59,12 +79,13 @@ const styles = StyleSheet.create({
       flex: 1,
       paddingTop: 100,
       backgroundColor: '#fff',
-      alignItems: 'center',
+    },
+    roundCard: {
+        paddingTop: 20,
     },
     oneLine: {
         flexDirection: "row",
         alignItems:"center",
-        justifyContent: "flex-start",
     },
     normalText: {
         fontSize: 20,
