@@ -70,7 +70,7 @@ export default class EachRound extends React.Component<Props> {
         const firstChecked = !this.state.firstChecked;
         const curMoney = (firstChecked) ? this.state.currentMoney - this.state.firstBuy : this.state.currentMoney + this.state.firstBuy;
         const secondCheckBoxDisabled = !firstChecked;
-        const firstInputBoxEditable = !firstChecked;
+        const firstInputBoxEditable = firstChecked;
         
         this.setState({
             secondCheckBoxDisabled: secondCheckBoxDisabled,
