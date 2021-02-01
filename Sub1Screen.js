@@ -2,9 +2,9 @@ import React from 'react';
 import {Alert, KeyboardAvoidingView, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {Button, Input} from 'galio-framework';
 import EachRound from './EachRound';
-import {CurrencyInputBox, ReactNativeNumberFormat} from './Util';
+import {ReactNativeNumberFormat} from './Util';
 
-export default class MainPage extends React.Component<Props>{
+export default class Sub1Screen extends React.Component<Props>{
 
     constructor(props) {
         super(props);

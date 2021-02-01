@@ -1,22 +1,31 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import EachRound from './EachRound';
-import MainPage from './MainPage';
+import * as React from 'react';
+import { View, Text } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import HomeScreen from './HomeScreen';
+import Sub1Screen from './Sub1Screen';
+import Sub2Screen from './Sub2Screen';
 
-export default function App() {
+// function HomeScreen() {
+//   return (
+//     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+//       <Text>Home Screen</Text>
+//     </View>
+//   );
+// }
+
+const Stack = createStackNavigator();
+
+function App() {
   return (
-    <View style={styles.container}>
-        <MainPage />
-        {/* <EachRound roundCount={1} firstBuy={100} secondBuy={50}/> */}
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="추가 매수 시뮬레이션" component={Sub1Screen} />
+        <Stack.Screen name="종목 전환 시뮬레이션" component={Sub2Screen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-});
+export default App;
