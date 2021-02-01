@@ -70,8 +70,8 @@ export default class Sub2Screen extends React.Component<Props> {
         const ACurIncome = this.state.ACurIncome / 100;
         const BTargetIncome = this.state.BTargetIncome / 100;
 
-        const AIncomeMoney = AMoney * ATargetIncome * AMount;
-        const BIncomeMoney = AMoney * AMount * (1 + ACurIncome) *  (1 + BTargetIncome) - AMoney * AMount;
+        const AIncomeMoney = Math.floor(AMoney * ATargetIncome * AMount);
+        const BIncomeMoney = Math.floor(AMoney * AMount * (1 + ACurIncome) *  (1 + BTargetIncome) - AMoney * AMount);
         const DiffMoney = BIncomeMoney - AIncomeMoney;
 
         this.setState({
