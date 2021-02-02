@@ -1,16 +1,25 @@
 import React from 'react';
-import {Alert, KeyboardAvoidingView, ScrollView, StyleSheet, Text, View} from 'react-native';
+import {Alert, findNodeHandle, StyleSheet, Text, View} from 'react-native';
 import {Button, Input} from 'galio-framework';
 import EachRound from './EachRound';
 import {ReactNativeNumberFormat} from './Util';
+import {KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import {getItemFromAsync, setItemToAsync} from './AsyncStorageHelper';
 
 export default class Sub1Screen extends React.Component<Props>{
 
     constructor(props) {
         super(props);
         
+        this.scroll;
+
+        getItemFromAsync('totalMoney')
+        .then((result) => console.log("get result :", result))
+        .catch((error) => console.log("실패:", error))
+
         this.state = {
-            totalMoney:'',
+            scroll: 0,
+            totalMoney: (getItemFromAsync('totalMoney') === null) ? '' : String(getItemFromAsync('totalMoney')),
             moneyForItem:0,
             roundArray:[],
             isInputBoxShow: true,
@@ -37,6 +46,8 @@ export default class Sub1Screen extends React.Component<Props>{
             isMoneyInputButtonShow: false,
             isInputBoxShow: false,
         })
+
+        setItemToAsync('totalMoney', this.state.totalMoney);
         this.addRoundCard(this,
         1,
         this.state.moneyForItem * 0.6,
@@ -52,7 +63,7 @@ export default class Sub1Screen extends React.Component<Props>{
 
     initRoundCard() {
         this.setState({
-            totalMoney: '',
+            totalMoney: 0,
             roundArray: [],
             moneyForItem: 0,
             isInputBoxShow: true,
@@ -74,11 +85,15 @@ export default class Sub1Screen extends React.Component<Props>{
           );
     }
 
+    _scrollToInput (reactNode: Input) {
+        this.scroll.props.scrollIntoView(reactNode)
+    }
+
     render() {
-        let roundViewGroup = this.state.roundArray.map((item) =>
+        let roundViewGroup = this.state.roundArray.map((item, key) =>
         {
             return(
-                <View>
+                <View key = {key}>
                     {item}
                 </View>
             );    
@@ -86,16 +101,12 @@ export default class Sub1Screen extends React.Component<Props>{
 
         return (
 
-            <KeyboardAvoidingView style={styles.container}>
-                <View style={styles.completeButton}>
-                    
-                </View>
-
+            <View style={styles.container}>
                 <View style={styles.oneLine}>
                     <Text style={styles.normalText}>총 투자금</Text>
                     {(this.state.isInputBoxShow) ? <View style={styles.inputBox}>
                         <Input
-                            value={this.state.totalMoney}
+                            value={String(this.state.totalMoney)}
                             type='decimal-pad'
                             clearButtonMode='always'
                             onChangeText={(newValue)=>this.onChangeTotalMoney(newValue)}
@@ -119,10 +130,13 @@ export default class Sub1Screen extends React.Component<Props>{
                         onPress={()=>this.onEndRound()}>매도 완료</Button>}
                 </View>
 
-                <ScrollView>
+                <KeyboardAwareScrollView
+                innerRef={ref => {
+                    this.scroll = ref
+                  }}>
                     {roundViewGroup}
-                </ScrollView>
-            </KeyboardAvoidingView>
+                </KeyboardAwareScrollView>
+            </View>
         );
     }
 }
