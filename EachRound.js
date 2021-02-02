@@ -110,8 +110,8 @@ export default class EachRound extends React.Component<Props> {
 
             firstInputBoxEditable: false,
             secondInputBoxEditable: false,
-           
-            buttonDisabled: true,
+
+            isButtonShow: false,
         })
 
         this.state.caller.addRoundCard(this.state.caller, this.state.roundCount+1, firstBuy, secondBuy);
@@ -151,7 +151,7 @@ export default class EachRound extends React.Component<Props> {
                         <ReactNativeNumberFormat value={this.state.currentMoney} />
                     </View>
 
-                    <View style={styles.oneLine}>
+                    {this.state.firstChecked && <View style={styles.oneLine}>
                         <Text style={styles.normalText}>1차 매도</Text>
                         <View style={styles.inputBox}>
                             <Input
@@ -160,8 +160,8 @@ export default class EachRound extends React.Component<Props> {
                                 onChangeText={(newValue)=>this.onChangeFirstSell(newValue)}
                                 placeholder="1차 매도 미실시" />
                         </View>
-                    </View>
-                    <View style={styles.oneLine}>
+                    </View>}
+                    {this.state.firstChecked && <View style={styles.oneLine}>
                         <Text style={styles.normalText}>2차 매도</Text>
                         <View style={styles.inputBox}>
                             <Input
@@ -170,11 +170,11 @@ export default class EachRound extends React.Component<Props> {
                                 onChangeText={(newValue)=>this.onChangeSecondSell(newValue)}
                                 placeholder={"2차 매도 미실시"} />
                         </View>
-                    </View>
-                    <View style={styles.oneLine}>
+                    </View>}
+                    {this.state.firstChecked && <View style={styles.oneLine}>
                         <Text style={styles.normalText}>매도금 합계</Text>
                         <ReactNativeNumberFormat value={this.state.totalSell} />
-                    </View>
+                    </View>}
 
                     <View style={styles.oneLine}>
                         {this.state.isButtonShow && <Button
