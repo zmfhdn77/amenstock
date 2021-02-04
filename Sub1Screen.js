@@ -21,7 +21,6 @@ export default class Sub1Screen extends React.Component<Props>{
             round:[],
 
             isInputBoxShow: true,
-            isCompleteButtonShow: false,
             isMoneyInputButtonShow: true,
             isMoneyForItemShow: false,
         };
@@ -39,7 +38,6 @@ export default class Sub1Screen extends React.Component<Props>{
 
     onPressMoneyInput() {
         this.setState({
-            isCompleteButtonShow: true,
             isMoneyForItemShow: true,
             isMoneyInputButtonShow: false,
             isInputBoxShow: false,
@@ -76,7 +74,6 @@ export default class Sub1Screen extends React.Component<Props>{
             round:[],
 
             isInputBoxShow: true,
-            isCompleteButtonShow: false,
             isMoneyForItemShow: false,
             isMoneyInputButtonShow: true,
             isInputBoxShow: true,
@@ -145,6 +142,7 @@ export default class Sub1Screen extends React.Component<Props>{
             }
             else {
                 this.setState({
+                    isMoneyInputButtonShow: false,
                     totalMoney: result.totalMoney,
                     moneyForItem: Math.floor(result.totalMoney * 0.25),
                     roundCount: result.data[0].roundCount,
@@ -211,10 +209,13 @@ export default class Sub1Screen extends React.Component<Props>{
                 </View>}
 
                 <View style={styles.oneLine}>
-                   {this.state.isMoneyInputButtonShow && <Button 
+                   {(this.state.isMoneyInputButtonShow) ? <Button 
                         style={styles.button} 
-                        onPress={()=>this.onPressMoneyInput()}> 투자금 입력 </Button>}
-                    {this.state.isCompleteButtonShow && <Button
+                        onPress={()=>this.onPressMoneyInput()}> 투자금 입력 </Button>
+                        : <Button 
+                        style={styles.button} 
+                        onPress={()=>this.onPressMoneyInput()}> 투자금 수정 </Button>}
+                    {!this.state.isMoneyInputButtonShow && <Button
                         disabled={this.state.secondInputBoxDisabled}
                         style={styles.button}
                         onPress={()=>this.onEndRound()}>매도 완료</Button>}
