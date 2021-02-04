@@ -6,14 +6,6 @@ import HomeScreen from './HomeScreen';
 import Sub1Screen from './Sub1Screen';
 import Sub2Screen from './Sub2Screen';
 
-// function HomeScreen() {
-//   return (
-//     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-//       <Text>Home Screen</Text>
-//     </View>
-//   );
-// }
-
 const Stack = createStackNavigator();
 
 function App() {

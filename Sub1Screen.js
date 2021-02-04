@@ -4,7 +4,7 @@ import {Button, Input} from 'galio-framework';
 import EachRound from './EachRound';
 import {ReactNativeNumberFormat} from './Util';
 import {KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {getItemFromAsync, setItemToAsync} from './AsyncStorageHelper';
+import {getDummy, getItemFromAsync, setItemToAsync} from './AsyncStorageHelper';
 
 export default class Sub1Screen extends React.Component<Props>{
 
@@ -13,15 +13,13 @@ export default class Sub1Screen extends React.Component<Props>{
         
         this.scroll;
 
-        getItemFromAsync('totalMoney')
-        .then((result) => console.log("get result :", result))
-        .catch((error) => console.log("실패:", error))
-
         this.state = {
-            scroll: 0,
-            totalMoney: (getItemFromAsync('totalMoney') === null) ? '' : String(getItemFromAsync('totalMoney')),
+            totalMoney: 0,
             moneyForItem:0,
-            roundArray:[],
+
+            roundCount: 0,
+            round:[],
+
             isInputBoxShow: true,
             isCompleteButtonShow: false,
             isMoneyInputButtonShow: true,
@@ -47,7 +45,6 @@ export default class Sub1Screen extends React.Component<Props>{
             isInputBoxShow: false,
         })
 
-        setItemToAsync('totalMoney', this.state.totalMoney);
         this.addRoundCard(this,
         1,
         this.state.moneyForItem * 0.6,
@@ -55,17 +52,29 @@ export default class Sub1Screen extends React.Component<Props>{
     }
 
     addRoundCard(caller, roundCount, firstBuy, secondBuy) {
-    
+
+        let roundItem = {
+            firstBuy: firstBuy,
+            secondBuy: secondBuy,
+            firstChecked: false,
+            secondChecked: false,
+            firstSell : 0,
+            secondSell : 0,
+        }
+
         this.setState({
-            roundArray: [...this.state.roundArray, <EachRound caller={caller} roundCount={roundCount} firstBuy={firstBuy} secondBuy={secondBuy}/>],
+            round: [...this.state.round,roundItem],
+            roundCount: this.state.roundCount+1,
         })
     }
 
     initRoundCard() {
         this.setState({
             totalMoney: 0,
-            roundArray: [],
-            moneyForItem: 0,
+            moneyForItem:0,
+            roundCount: 0,
+            round:[],
+
             isInputBoxShow: true,
             isCompleteButtonShow: false,
             isMoneyForItemShow: false,
@@ -85,18 +94,68 @@ export default class Sub1Screen extends React.Component<Props>{
           );
     }
 
-    _scrollToInput (reactNode: Input) {
-        this.scroll.props.scrollIntoView(reactNode)
+    componentDidMount() {
+        // const result = getDummy();
+        getItemFromAsync('sub1ScreenState')
+        .then((result) => {
+            if(result === null) {
+                console.log("Empty Data");
+            }
+            else {
+                this.setState({
+                    totalMoney: result.totalMoney,
+                    moneyForItem: Math.floor(result.totalMoney * 0.25),
+                    roundCount: result.data[0].roundCount,
+                    round: result.data[0].round,
+                });
+            }
+        })
+        .catch(() => {
+            console.log("Error");
+        })
+    }
+
+    componentWillUnmount() {
+        const currentState = {
+            totalMoney : this.state.totalMoney,
+            data : 
+            [
+                {
+                    name : "삼성전자",
+                    roundCount : this.state.roundCount,
+                    round : this.state.round,
+                }
+            ]
+        }
+
+        setItemToAsync('sub1ScreenState', currentState);
     }
 
     render() {
-        let roundViewGroup = this.state.roundArray.map((item, key) =>
+
+        if(this.state.moneyForItem != 0)
         {
+            this.isMoneyForItemShow  = true;
+        }
+
+        let roundViewGroup = this.state.round.map((item, key) =>
+        {
+            const bIsCompleted = ((key+1) != this.state.roundCount);
+
             return(
                 <View key = {key}>
-                    {item}
+                    <EachRound caller={this} 
+                        roundCount={key+1}
+                        firstBuy={item.firstBuy}
+                        secondBuy={item.secondBuy}
+                        firstChecked={item.firstChecked}
+                        secondChecked={item.secondChecked}
+                        firstSell={item.firstSell}
+                        secondSell={item.secondSell}
+                        bIsCompleted={bIsCompleted}/>
+                        
                 </View>
-            );    
+            )
         });
 
         return (
@@ -115,7 +174,7 @@ export default class Sub1Screen extends React.Component<Props>{
                     : <ReactNativeNumberFormat value={this.state.totalMoney} />}
                 </View>
 
-                {this.state.isMoneyForItemShow && <View style={styles.oneLine}>
+                {this.isMoneyForItemShow && <View style={styles.oneLine}>
                     <Text style={styles.normalText}>종목 비중</Text>
                     <ReactNativeNumberFormat value={this.state.moneyForItem} />
                 </View>}
@@ -130,10 +189,7 @@ export default class Sub1Screen extends React.Component<Props>{
                         onPress={()=>this.onEndRound()}>매도 완료</Button>}
                 </View>
 
-                <KeyboardAwareScrollView
-                innerRef={ref => {
-                    this.scroll = ref
-                  }}>
+                <KeyboardAwareScrollView>
                     {roundViewGroup}
                 </KeyboardAwareScrollView>
             </View>

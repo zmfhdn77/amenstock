@@ -10,48 +10,39 @@ export default class EachRound extends React.Component<Props> {
     constructor(props) {
         super(props);
 
-        const curMoney = this.props.firstBuy + this.props.secondBuy;
+        const caller = this.props.caller;
+        const roundCount = this.props.roundCount;
+        const firstChecked = this.props.firstChecked;
+        const secondChecked = this.props.secondChecked;
+        const firstBuy = Math.floor(this.props.firstBuy);
+        const secondBuy = Math.floor(this.props.secondBuy);
+        let currentMoney = firstBuy + secondBuy;
+        currentMoney = (firstChecked) ? currentMoney - firstBuy : currentMoney;
+        currentMoney = (secondChecked) ? currentMoney - secondBuy : currentMoney;
+        const firstSell = this.props.firstSell;
+        const secondSell = this.props.secondSell;
+        const totalSell = firstSell + secondSell;
+        const bIsCompleted = this.props.bIsCompleted;
 
         this.state = {
-            roundCount: this.props.roundCount,
-            firstChecked: false,
-            secondChecked: false,
-
-            firtsCheckBoxDisabled: false,
-            secondCheckBoxDisabled: true,
-
-            firstBuy: Math.floor(this.props.firstBuy),
-            secondBuy: Math.floor(this.props.secondBuy),
-
-            firstInputBoxEditable: false,
-            secondInputBoxEditable: false,
-           
-            isButtonShow: false,
-
-            currentMoney: curMoney,
-
-            caller: this.props.caller,
-
-            firstSell: 0,
-            secondSell: 0,
-            totalSell: 0,
+            caller: caller,
+            roundCount: roundCount,
+            firstChecked: firstChecked,
+            secondChecked: secondChecked,
+            firstBuy: firstBuy,
+            secondBuy: secondBuy,
+            currentMoney: currentMoney,
+            firstSell: firstSell,
+            secondSell: secondSell,
+            totalSell: totalSell,
+            bIsCompleted: bIsCompleted,
         };
     }
 
     onChangeFirstSell(firstSell) {
         const totalSell = this.state.secondSell * 1.0 + firstSell * 1.0;
-        
-        let secondInputBoxEditable = false;
-        let isButtonShow = false;
-
-        if(totalSell != 0) {
-            secondInputBoxEditable = true;
-            isButtonShow = true;;
-        }
 
         this.setState({
-            secondInputBoxEditable: secondInputBoxEditable,
-            isButtonShow: isButtonShow,
             firstSell: firstSell,
             totalSell: totalSell,
         })
@@ -68,25 +59,19 @@ export default class EachRound extends React.Component<Props> {
 
     onFirstItemChecked() {
         const firstChecked = !this.state.firstChecked;
-        const curMoney = (firstChecked) ? this.state.currentMoney - this.state.firstBuy : this.state.currentMoney + this.state.firstBuy;
-        const secondCheckBoxDisabled = !firstChecked;
-        const firstInputBoxEditable = firstChecked;
+        const currentMoney = (firstChecked) ? this.state.currentMoney - this.state.firstBuy : this.state.currentMoney + this.state.firstBuy;
         
         this.setState({
-            secondCheckBoxDisabled: secondCheckBoxDisabled,
             firstChecked: firstChecked,
-            currentMoney: curMoney,
-            firstInputBoxEditable: firstInputBoxEditable,
+            currentMoney: currentMoney,
         })
     }
 
     onSecondItemChecked() {
         const secondChecked = !this.state.secondChecked;
         const curMoney = (secondChecked) ? 0 : this.state.secondBuy;
-        const firtsCheckBoxDisabled = secondChecked;
         
         this.setState({
-            firtsCheckBoxDisabled: firtsCheckBoxDisabled,
             secondChecked: secondChecked,
             currentMoney: curMoney,
         })
@@ -105,13 +90,7 @@ export default class EachRound extends React.Component<Props> {
         }
 
         this.setState({
-            firtsCheckBoxDisabled: true,
-            secondCheckBoxDisabled: true,
-
-            firstInputBoxEditable: false,
-            secondInputBoxEditable: false,
-
-            isButtonShow: false,
+            bIsCompleted: true,
         })
 
         this.state.caller.addRoundCard(this.state.caller, this.state.roundCount+1, firstBuy, secondBuy);
@@ -119,6 +98,14 @@ export default class EachRound extends React.Component<Props> {
     }
 
     render() {
+        const bIsFirstCheckboxDisabled = (this.state.bIsCompleted || this.state.secondChecked);
+        const bIsSecondCheckboxDisabled = (this.state.bIsCompleted || !this.state.firstChecked);
+        const bIsFirstInputBoxEditable = (!this.state.bIsCompleted && this.state.firstChecked);
+        const bIsSecondInputBoxEditable = (!this.state.bIsCompleted && 
+                                            this.state.firstChecked &&
+                                            this.state.firstSell != 0);
+        const bIsButtonShow = (!this.state.bIsCompleted && this.state.totalSell != 0);
+
         return (
             <Card>
                 <Card.Title>[Round {this.state.roundCount}]</Card.Title>
@@ -128,7 +115,8 @@ export default class EachRound extends React.Component<Props> {
                         <View style={styles.lineBox}>
                             <View style={styles.oneLine}>
                                 <Checkbox
-                                    disabled={this.state.firtsCheckBoxDisabled}
+                                    initialValue={this.state.firstChecked}
+                                    disabled={bIsFirstCheckboxDisabled}
                                     onChange={()=>this.onFirstItemChecked()} 
                                     color="primary" 
                                     label="1차 매수"/>
@@ -137,7 +125,8 @@ export default class EachRound extends React.Component<Props> {
                     
                             <View style={styles.oneLine}>
                                 <Checkbox
-                                    disabled={this.state.secondCheckBoxDisabled}
+                                    initialValue={this.state.secondChecked}
+                                    disabled={bIsSecondCheckboxDisabled}
                                     onChange={()=>this.onSecondItemChecked()}
                                     color="primary" 
                                     label="2차 매수"/>
@@ -151,11 +140,13 @@ export default class EachRound extends React.Component<Props> {
                         <ReactNativeNumberFormat value={this.state.currentMoney} />
                     </View>
 
+                    <Card.Divider />
                     {this.state.firstChecked && <View style={styles.oneLine}>
                         <Text style={styles.normalText}>1차 매도</Text>
                         <View style={styles.inputBox}>
                             <Input
-                                editable={this.state.firstInputBoxEditable}
+                                value={String(this.state.firstSell)}
+                                editable={bIsFirstInputBoxEditable}
                                 type='numeric'
                                 onChangeText={(newValue)=>this.onChangeFirstSell(newValue)}
                                 placeholder="1차 매도 미실시" />
@@ -165,7 +156,8 @@ export default class EachRound extends React.Component<Props> {
                         <Text style={styles.normalText}>2차 매도</Text>
                         <View style={styles.inputBox}>
                             <Input
-                                editable={this.state.secondInputBoxEditable}
+                                value={String(this.state.secondSell)}
+                                editable={bIsSecondInputBoxEditable}
                                 type='numeric'
                                 onChangeText={(newValue)=>this.onChangeSecondSell(newValue)}
                                 placeholder={"2차 매도 미실시"} />
@@ -177,7 +169,7 @@ export default class EachRound extends React.Component<Props> {
                     </View>}
 
                     <View style={styles.oneLine}>
-                        {this.state.isButtonShow && <Button
+                        {bIsButtonShow && <Button
                             style={styles.button}
                             onPress={()=>this.onNextRound()}>재매수 발생</Button>}
                     </View>

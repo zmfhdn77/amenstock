@@ -13,9 +13,6 @@ const isEmpty = function (value) {
     if (isEmpty(storageName)) {
       throw Error('Storage Name is empty');
     }
-
-    console.log('getItemFromAsync');
-    console.log('storageName : ' + storageName);
     
     return new Promise((resolve, reject) => {
       AsyncStorage.getItem(storageName, (err, result) => {
@@ -27,7 +24,6 @@ const isEmpty = function (value) {
           resolve(null);
         }
         
-        console.log('result : ' + JSON.parse(result));
         resolve(JSON.parse(result));
       });
     });
@@ -49,3 +45,37 @@ const isEmpty = function (value) {
       });
     });
   };
+
+export function getDummy() {
+  const fakeData = {
+    totalMoney : 10000,
+    data : 
+    [
+        {
+            name : "삼성전자",
+            roundCount : 2,
+            round : 
+            [
+                {
+                    firstBuy: 60,
+                    secondBuy: 50,
+                    firstChecked: true,
+                    secondChecked: true,
+                    firstSell : 100,
+                    secondSell : 20
+                },
+                {
+                    firstBuy : 120,
+                    secondBuy : 0,
+                    firstChecked: true,
+                    secondChecked: false,
+                    firstSell : 50,
+                    secondSell : 0
+                }
+            ]
+        }
+    ]
+  }
+  
+  return fakeData;
+}
