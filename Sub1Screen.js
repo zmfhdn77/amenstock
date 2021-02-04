@@ -94,6 +94,48 @@ export default class Sub1Screen extends React.Component<Props>{
           );
     }
 
+    saveCurrentStateToStorage() {
+        const currentState = {
+            totalMoney : this.state.totalMoney,
+            data : 
+            [
+                {
+                    name : "종목A",
+                    roundCount : this.state.roundCount,
+                    round : this.state.round,
+                }
+            ]
+        }
+
+        setItemToAsync('sub1ScreenState', currentState);
+    }
+
+    updateCurrentRound(currentRound, firstBuy, secondBuy, 
+        firstChecked, secondChecked, firstSell,secondSell) {
+
+        if(currentRound != this.state.roundCount) {
+            return;
+        }
+
+        const roundInfo = {
+            firstBuy: firstBuy,
+            secondBuy: secondBuy,
+            firstChecked: firstChecked,
+            secondChecked: secondChecked,
+            firstSell : firstSell,
+            secondSell : secondSell,
+        };
+
+        let round = this.state.round;
+        round[this.state.roundCount - 1] = roundInfo;
+
+        this.setState({
+            round: round,
+        });
+
+        this.saveCurrentStateToStorage();
+    }
+
     componentDidMount() {
         // const result = getDummy();
         getItemFromAsync('sub1ScreenState')
@@ -116,19 +158,8 @@ export default class Sub1Screen extends React.Component<Props>{
     }
 
     componentWillUnmount() {
-        const currentState = {
-            totalMoney : this.state.totalMoney,
-            data : 
-            [
-                {
-                    name : "삼성전자",
-                    roundCount : this.state.roundCount,
-                    round : this.state.round,
-                }
-            ]
-        }
-
-        setItemToAsync('sub1ScreenState', currentState);
+        console.log("sub1 screen unmount");
+        this.saveCurrentStateToStorage();
     }
 
     render() {

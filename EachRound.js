@@ -97,6 +97,19 @@ export default class EachRound extends React.Component<Props> {
         return;
     }
 
+    componentWillUnmount() {
+        console.log("eachscreen unmount");
+        this.state.caller.updateCurrentRound(
+            this.state.roundCount,
+            this.state.firstBuy,
+            this.state.secondBuy,
+            this.state.firstChecked,
+            this.state.secondChecked,
+            this.state.firstSell,
+            this.state.secondSell,
+            );
+    }
+
     render() {
         const bIsFirstCheckboxDisabled = (this.state.bIsCompleted || this.state.secondChecked);
         const bIsSecondCheckboxDisabled = (this.state.bIsCompleted || !this.state.firstChecked);
