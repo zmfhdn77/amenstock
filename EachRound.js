@@ -1,5 +1,5 @@
 import React from 'react';
-import {findNodeHandle, StyleSheet, Event, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import {Checkbox, Text, Input} from 'galio-framework';
 import {Button} from 'galio-framework';
 import {ReactNativeNumberFormat} from './Util';
@@ -98,7 +98,6 @@ export default class EachRound extends React.Component<Props> {
     }
 
     componentWillUnmount() {
-        console.log("eachscreen unmount");
         this.state.caller.updateCurrentRound(
             this.state.roundCount,
             this.state.firstBuy,
@@ -107,7 +106,7 @@ export default class EachRound extends React.Component<Props> {
             this.state.secondChecked,
             this.state.firstSell,
             this.state.secondSell,
-            );
+        );
     }
 
     render() {

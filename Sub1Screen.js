@@ -1,10 +1,10 @@
 import React from 'react';
-import {Alert, findNodeHandle, StyleSheet, Text, View} from 'react-native';
+import {Alert, StyleSheet, Text, View} from 'react-native';
 import {Button, Input} from 'galio-framework';
 import EachRound from './EachRound';
 import {ReactNativeNumberFormat} from './Util';
 import {KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {getDummy, getItemFromAsync, setItemToAsync} from './AsyncStorageHelper';
+import {getItemFromAsync, setItemToAsync} from './AsyncStorageHelper';
 
 export default class Sub1Screen extends React.Component<Props>{
 
@@ -76,7 +76,6 @@ export default class Sub1Screen extends React.Component<Props>{
             isInputBoxShow: true,
             isMoneyForItemShow: false,
             isMoneyInputButtonShow: true,
-            isInputBoxShow: true,
         })
     }
 
@@ -110,10 +109,6 @@ export default class Sub1Screen extends React.Component<Props>{
     updateCurrentRound(currentRound, firstBuy, secondBuy, 
         firstChecked, secondChecked, firstSell,secondSell) {
 
-        if(currentRound != this.state.roundCount) {
-            return;
-        }
-
         const roundInfo = {
             firstBuy: firstBuy,
             secondBuy: secondBuy,
@@ -124,7 +119,7 @@ export default class Sub1Screen extends React.Component<Props>{
         };
 
         let round = this.state.round;
-        round[this.state.roundCount - 1] = roundInfo;
+        round[currentRound - 1] = roundInfo;
 
         this.setState({
             round: round,
@@ -134,10 +129,9 @@ export default class Sub1Screen extends React.Component<Props>{
     }
 
     componentDidMount() {
-        // const result = getDummy();
         getItemFromAsync('sub1ScreenState')
         .then((result) => {
-            if(result === null) {
+            if(result === null || result.totalMoney == 0) {
                 console.log("Empty Data");
             }
             else {
@@ -156,7 +150,6 @@ export default class Sub1Screen extends React.Component<Props>{
     }
 
     componentWillUnmount() {
-        console.log("sub1 screen unmount");
         this.saveCurrentStateToStorage();
     }
 
@@ -182,7 +175,6 @@ export default class Sub1Screen extends React.Component<Props>{
                         firstSell={item.firstSell}
                         secondSell={item.secondSell}
                         bIsCompleted={bIsCompleted}/>
-                        
                 </View>
             )
         });
@@ -209,12 +201,9 @@ export default class Sub1Screen extends React.Component<Props>{
                 </View>}
 
                 <View style={styles.oneLine}>
-                   {(this.state.isMoneyInputButtonShow) ? <Button 
+                   {this.state.isMoneyInputButtonShow && <Button 
                         style={styles.button} 
-                        onPress={()=>this.onPressMoneyInput()}> 투자금 입력 </Button>
-                        : <Button 
-                        style={styles.button} 
-                        onPress={()=>this.onPressMoneyInput()}> 투자금 수정 </Button>}
+                        onPress={()=>this.onPressMoneyInput()}> 투자금 입력 </Button>}
                     {!this.state.isMoneyInputButtonShow && <Button
                         disabled={this.state.secondInputBoxDisabled}
                         style={styles.button}
