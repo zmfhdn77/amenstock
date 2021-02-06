@@ -5,6 +5,7 @@ import EachRound from './EachRound';
 import {ReactNativeNumberFormat} from './Util';
 import {KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import {getItemFromAsync, setItemToAsync} from './AsyncStorageHelper';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export default class Sub1Screen extends React.Component<Props>{
 
@@ -23,6 +24,7 @@ export default class Sub1Screen extends React.Component<Props>{
             isInputBoxShow: true,
             isMoneyInputButtonShow: true,
             isMoneyForItemShow: false,
+            isNextRoundButtonDisabled: true,
         };
     }
 
@@ -43,13 +45,12 @@ export default class Sub1Screen extends React.Component<Props>{
             isInputBoxShow: false,
         })
 
-        this.addRoundCard(this,
-        1,
-        this.state.moneyForItem * 0.6,
-        this.state.moneyForItem * 0.4)            
+        const firstBuy = this.state.moneyForItem * 0.6;
+        const secondBuy = this.state.moneyForItem * 0.4;
+        this.addRoundCard(firstBuy, secondBuy);
     }
 
-    addRoundCard(caller, roundCount, firstBuy, secondBuy) {
+    addRoundCard(firstBuy, secondBuy) {
 
         let roundItem = {
             firstBuy: firstBuy,
@@ -57,7 +58,7 @@ export default class Sub1Screen extends React.Component<Props>{
             firstChecked: false,
             secondChecked: false,
             firstSell : 0,
-            secondSell : 0,
+            secondSell : 0
         }
 
         this.setState({
@@ -66,31 +67,9 @@ export default class Sub1Screen extends React.Component<Props>{
         })
     }
 
-    initRoundCard() {
-        this.setState({
-            totalMoney: 0,
-            moneyForItem:0,
-            roundCount: 0,
-            round:[],
-
-            isInputBoxShow: true,
-            isMoneyForItemShow: false,
-            isMoneyInputButtonShow: true,
-        })
-    }
-
-    onEndRound() {
-        Alert.alert(
-            "거래 완료",
-            "거래가 완료되었습니다. 처음으로 돌아갑니다.",
-            [
-              { text: "OK", onPress: () => this.initRoundCard() }
-            ],
-            { cancelable: false }
-          );
-    }
-
     saveCurrentStateToStorage() {
+        console.log("saveCurrentStateToStorage");
+
         const currentState = {
             totalMoney : this.state.totalMoney,
             data : 
@@ -106,26 +85,61 @@ export default class Sub1Screen extends React.Component<Props>{
         setItemToAsync('sub1ScreenState', currentState);
     }
 
-    updateCurrentRound(currentRound, firstBuy, secondBuy, 
-        firstChecked, secondChecked, firstSell,secondSell) {
-
-        const roundInfo = {
-            firstBuy: firstBuy,
-            secondBuy: secondBuy,
-            firstChecked: firstChecked,
-            secondChecked: secondChecked,
-            firstSell : firstSell,
-            secondSell : secondSell,
-        };
-
-        let round = this.state.round;
-        round[currentRound - 1] = roundInfo;
-
+    initRoundCard() {
         this.setState({
-            round: round,
-        });
+            totalMoney : 0,
+            moneyForItem: 0,
 
-        this.saveCurrentStateToStorage();
+            roundCount: 0,
+            round: [],
+
+            isInputBoxShow: true,
+            isMoneyForItemShow: false,
+            isMoneyInputButtonShow: true,
+            isNextRoundButtonDisabled: true,
+        }, this.saveCurrentStateToStorage());
+    }
+
+    onNextRound() {
+        const currentRoundInfo = this.state.round[this.state.roundCount - 1];
+        const currentTotalSell = Number(currentRoundInfo.firstSell) + Number(currentRoundInfo.secondSell);
+
+        let firstBuy, secondBuy;
+
+        if(currentRoundInfo.secondChecked) {
+            firstBuy = currentTotalSell * 0.6;
+            secondBuy = currentTotalSell * 0.4;
+        }
+        else {
+            firstBuy = currentTotalSell;
+        }
+
+        this.addRoundCard(firstBuy, secondBuy);
+
+        return;
+    }
+
+    onEndRound() {
+        Alert.alert(
+            "거래 완료",
+            "거래가 완료되었습니다. 처음으로 돌아갑니다.",
+            [
+              { text: "OK", onPress: () => this.initRoundCard() }
+            ],
+            { cancelable: false }
+          );
+    }
+
+    updateCurrentRoundInfo(roundIndex, roundInfo) {
+        let currentRoundInfo = this.state.round;
+        currentRoundInfo[roundIndex -1] = roundInfo;
+
+        const isNextRoundButtonDisabled = (roundInfo.firstSell == 0);
+        
+        this.setState({
+            round: currentRoundInfo,
+            isNextRoundButtonDisabled: isNextRoundButtonDisabled,
+        })
     }
 
     componentDidMount() {
@@ -167,7 +181,7 @@ export default class Sub1Screen extends React.Component<Props>{
             return(
                 <View key = {key}>
                     <EachRound caller={this} 
-                        roundCount={key+1}
+                        roundIndex={key+1}
                         firstBuy={item.firstBuy}
                         secondBuy={item.secondBuy}
                         firstChecked={item.firstChecked}
@@ -201,18 +215,24 @@ export default class Sub1Screen extends React.Component<Props>{
                 </View>}
 
                 <View style={styles.oneLine}>
-                   {this.state.isMoneyInputButtonShow && <Button 
+                   {(this.state.isMoneyInputButtonShow) ? <Button 
                         style={styles.button} 
-                        onPress={()=>this.onPressMoneyInput()}> 투자금 입력 </Button>}
+                        onPress={()=>this.onPressMoneyInput()}> 투자금 입력 </Button>
+                        : <Button
+                            disabled={this.state.isNextRoundButtonDisabled}
+                            style={styles.button}
+                            onPress={()=>this.onNextRound()}>재매수 발생</Button>}
+
                     {!this.state.isMoneyInputButtonShow && <Button
-                        disabled={this.state.secondInputBoxDisabled}
                         style={styles.button}
                         onPress={()=>this.onEndRound()}>매도 완료</Button>}
                 </View>
 
-                <KeyboardAwareScrollView>
+                <ScrollView ref="scrollView"
+                    onContentSizeChange={(width,height) => 
+                        this.refs.scrollView.scrollTo({y:height})}>
                     {roundViewGroup}
-                </KeyboardAwareScrollView>
+                </ScrollView>
             </View>
         );
     }

@@ -11,7 +11,7 @@ export default class EachRound extends React.Component<Props> {
         super(props);
 
         const caller = this.props.caller;
-        const roundCount = this.props.roundCount;
+        const roundIndex = this.props.roundIndex;
         const firstChecked = this.props.firstChecked;
         const secondChecked = this.props.secondChecked;
         const firstBuy = Math.floor(this.props.firstBuy);
@@ -26,7 +26,7 @@ export default class EachRound extends React.Component<Props> {
 
         this.state = {
             caller: caller,
-            roundCount: roundCount,
+            roundIndex: roundIndex,
             firstChecked: firstChecked,
             secondChecked: secondChecked,
             firstBuy: firstBuy,
@@ -39,13 +39,26 @@ export default class EachRound extends React.Component<Props> {
         };
     }
 
+    updateRoundInfoToScreen() {
+        const roundInfo = {
+            firstChecked: this.state.firstChecked,
+            secondChecked: this.state.secondChecked,
+            firstBuy: this.state.firstBuy,
+            secondBuy: this.state.secondBuy,
+            firstSell: this.state.firstSell,
+            secondSell: this.state.secondSell,
+        }
+
+        this.state.caller.updateCurrentRoundInfo(this.state.roundIndex, roundInfo);
+    }
+
     onChangeFirstSell(firstSell) {
         const totalSell = this.state.secondSell * 1.0 + firstSell * 1.0;
 
         this.setState({
             firstSell: firstSell,
             totalSell: totalSell,
-        })
+        }, ()=>{this.updateRoundInfoToScreen()});
     }
 
     onChangeSecondSell(secondSell) {
@@ -54,7 +67,7 @@ export default class EachRound extends React.Component<Props> {
         this.setState({
             secondSell: secondSell,
             totalSell: totalSell,
-        })
+        }, ()=>{this.updateRoundInfoToScreen()});
     }
 
     onFirstItemChecked() {
@@ -64,7 +77,7 @@ export default class EachRound extends React.Component<Props> {
         this.setState({
             firstChecked: firstChecked,
             currentMoney: currentMoney,
-        })
+        }, ()=>{this.updateRoundInfoToScreen()});
     }
 
     onSecondItemChecked() {
@@ -74,39 +87,7 @@ export default class EachRound extends React.Component<Props> {
         this.setState({
             secondChecked: secondChecked,
             currentMoney: curMoney,
-        })
-    }
-
-    onNextRound() {
-        let firstBuy, secondBuy;
-
-        if(this.state.secondChecked) {
-            firstBuy = this.state.totalSell * 0.6;
-            secondBuy = this.state.totalSell * 0.4;
-        }
-        else {
-            firstBuy = this.state.totalSell;
-            secondBuy = this.state.currentMoney;
-        }
-
-        this.setState({
-            bIsCompleted: true,
-        })
-
-        this.state.caller.addRoundCard(this.state.caller, this.state.roundCount+1, firstBuy, secondBuy);
-        return;
-    }
-
-    componentWillUnmount() {
-        this.state.caller.updateCurrentRound(
-            this.state.roundCount,
-            this.state.firstBuy,
-            this.state.secondBuy,
-            this.state.firstChecked,
-            this.state.secondChecked,
-            this.state.firstSell,
-            this.state.secondSell,
-        );
+        }, ()=>{this.updateRoundInfoToScreen()});
     }
 
     render() {
@@ -120,7 +101,7 @@ export default class EachRound extends React.Component<Props> {
 
         return (
             <Card>
-                <Card.Title>[Round {this.state.roundCount}]</Card.Title>
+                <Card.Title>[Round {this.state.roundIndex}]</Card.Title>
                 <Card.Divider />
                 <View style={styles.container}>
                     <View style={styles.oneLine}>
@@ -179,12 +160,6 @@ export default class EachRound extends React.Component<Props> {
                         <Text style={styles.normalText}>매도금 합계</Text>
                         <ReactNativeNumberFormat value={this.state.totalSell} />
                     </View>}
-
-                    <View style={styles.oneLine}>
-                        {bIsButtonShow && <Button
-                            style={styles.button}
-                            onPress={()=>this.onNextRound()}>재매수 발생</Button>}
-                    </View>
                 </View>
             </Card>
         );
