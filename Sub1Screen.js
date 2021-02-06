@@ -1,11 +1,14 @@
 import React from 'react';
-import {Alert, StyleSheet, Text, View} from 'react-native';
+import {Dimensions, Alert, StyleSheet, Text, View} from 'react-native';
 import {Button, Input} from 'galio-framework';
 import EachRound from './EachRound';
 import {ReactNativeNumberFormat} from './Util';
 import {KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import {getItemFromAsync, setItemToAsync} from './AsyncStorageHelper';
 import { ScrollView } from 'react-native-gesture-handler';
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Math.round(Dimensions.get('window').height);
 
 export default class Sub1Screen extends React.Component<Props>{
 
@@ -195,13 +198,19 @@ export default class Sub1Screen extends React.Component<Props>{
 
         return (
 
+            <KeyboardAwareScrollView 
+            style={{flexGrow:1}} 
+            enableOnAndroid={true}
+            scrollEnabled={false}>   
+
             <View style={styles.container}>
                 <View style={styles.oneLine}>
                     <Text style={styles.normalText}>총 투자금</Text>
                     {(this.state.isInputBoxShow) ? <View style={styles.inputBox}>
                         <Input
                             value={String(this.state.totalMoney)}
-                            type='decimal-pad'
+                            returnKeyType='done'
+                            type='numeric'
                             clearButtonMode='always'
                             onChangeText={(newValue)=>this.onChangeTotalMoney(newValue)}
                             placeholder="투자금 입력" />
@@ -228,22 +237,24 @@ export default class Sub1Screen extends React.Component<Props>{
                         onPress={()=>this.onEndRound()}>매도 완료</Button>}
                 </View>
 
-                <ScrollView ref="scrollView"
-                    onContentSizeChange={(width,height) => 
-                        this.refs.scrollView.scrollTo({y:height})}>
+                <ScrollView 
+                    ref="scrollView"
+                    onContentSizeChange={() => {
+                        this.refs.scrollView.scrollToEnd({animated: true})}
+                    }>
                     {roundViewGroup}
                 </ScrollView>
             </View>
+            </KeyboardAwareScrollView>
         );
     }
 }
 
 const styles = StyleSheet.create({
     container: {
-      flex: 1,
+      height: 800,
       paddingLeft: 10,
       paddingRight: 10,
-      paddingTop: 100,
       backgroundColor: '#fff',
     },
     roundCard: {

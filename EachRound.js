@@ -140,7 +140,9 @@ export default class EachRound extends React.Component<Props> {
                             <Input
                                 value={String(this.state.firstSell)}
                                 editable={bIsFirstInputBoxEditable}
+                                returnKeyType='done'
                                 type='numeric'
+                                clearButtonMode='always'
                                 onChangeText={(newValue)=>this.onChangeFirstSell(newValue)}
                                 placeholder="1차 매도 미실시" />
                         </View>
@@ -151,7 +153,9 @@ export default class EachRound extends React.Component<Props> {
                             <Input
                                 value={String(this.state.secondSell)}
                                 editable={bIsSecondInputBoxEditable}
+                                returnKeyType='done'
                                 type='numeric'
+                                clearButtonMode='always'
                                 onChangeText={(newValue)=>this.onChangeSecondSell(newValue)}
                                 placeholder={"2차 매도 미실시"} />
                         </View>

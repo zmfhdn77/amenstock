@@ -90,7 +90,8 @@ export default class Sub2Screen extends React.Component<Props> {
                     <Text style={styles.normalText}>총 투자금</Text>
                     <View style={styles.inputBox}>
                         <Input
-                            type='decimal-pad'
+                            returnKeyType='done'
+                            type='numeric'
                             clearButtonMode='always'
                             onChangeText={(newValue)=>this.onChangeTotalMoney(newValue)}/>
                     </View>
@@ -99,7 +100,8 @@ export default class Sub2Screen extends React.Component<Props> {
                     <Text style={styles.normalText}>종목A 목표 수익률 (%)</Text>
                     <View style={styles.inputBox}>
                         <Input
-                            type='decimal-pad'
+                            returnKeyType='done'
+                            type='numeric'
                             clearButtonMode='always'
                             onChangeText={(newValue)=>this.onChangeATargetIncome(newValue)}/>
                     </View>
@@ -108,7 +110,8 @@ export default class Sub2Screen extends React.Component<Props> {
                     <Text style={styles.normalText}>종목A 매도 비율 (%)</Text>
                     <View style={styles.inputBox}>
                         <Input
-                            type='decimal-pad'
+                            returnKeyType='done'
+                            type='numeric'
                             clearButtonMode='always'
                             onChangeText={(newValue)=>this.onChangeAMount(newValue)}/>
                     </View>
@@ -117,7 +120,8 @@ export default class Sub2Screen extends React.Component<Props> {
                     <Text style={styles.normalText}>종목A 현재 수익률 (%)</Text>
                     <View style={styles.inputBox}>
                         <Input
-                            type='decimal-pad'
+                            returnKeyType='done'
+                            type='numeric'
                             clearButtonMode='always'
                             onChangeText={(newValue)=>this.onChangeACurIncome(newValue)}/>
                     </View>
@@ -126,7 +130,8 @@ export default class Sub2Screen extends React.Component<Props> {
                     <Text style={styles.normalText}>종목B 목표 수익률 (%)</Text>
                     <View style={styles.inputBox}>
                         <Input
-                            type='decimal-pad'
+                            returnKeyType='done'
+                            type='numeric'
                             clearButtonMode='always'
                             onChangeText={(newValue)=>this.onChangeBTargetIncome(newValue)}/>
                     </View>
