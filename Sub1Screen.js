@@ -54,7 +54,6 @@ export default class Sub1Screen extends React.Component<Props>{
     }
 
     addRoundCard(firstBuy, secondBuy) {
-
         let roundItem = {
             firstBuy: firstBuy,
             secondBuy: secondBuy,
@@ -115,6 +114,7 @@ export default class Sub1Screen extends React.Component<Props>{
         }
         else {
             firstBuy = currentTotalSell;
+            secondBuy = currentRoundInfo.secondBuy;
         }
 
         this.addRoundCard(firstBuy, secondBuy);
