@@ -1,9 +1,8 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import {Checkbox, Text, Input} from 'galio-framework';
-import {Button} from 'galio-framework';
+import {Text, Input} from 'galio-framework';
 import {ReactNativeNumberFormat} from './Util';
-import {Card} from 'react-native-elements';
+import {CheckBox, Card} from 'react-native-elements';
 
 export default class EachRound extends React.Component<Props> {
 
@@ -29,6 +28,8 @@ export default class EachRound extends React.Component<Props> {
             roundIndex: roundIndex,
             firstChecked: firstChecked,
             secondChecked: secondChecked,
+            firstSellChecked: this.props.firstSellChecked,
+            secondSellChecked: this.props.secondSellChecked,
             firstBuy: firstBuy,
             secondBuy: secondBuy,
             currentMoney: currentMoney,
@@ -53,11 +54,10 @@ export default class EachRound extends React.Component<Props> {
     }
 
     onChangeFirstSell(firstSell) {
-        const totalSell = this.state.secondSell * 1.0 + firstSell * 1.0;
+        // const totalSell = this.state.secondSell * 1.0 + firstSell * 1.0;
 
         this.setState({
             firstSell: firstSell,
-            totalSell: totalSell,
         }, ()=>{this.updateRoundInfoToScreen()});
     }
 
@@ -66,7 +66,6 @@ export default class EachRound extends React.Component<Props> {
 
         this.setState({
             secondSell: secondSell,
-            totalSell: totalSell,
         }, ()=>{this.updateRoundInfoToScreen()});
     }
 
@@ -90,6 +89,32 @@ export default class EachRound extends React.Component<Props> {
         }, ()=>{this.updateRoundInfoToScreen()});
     }
 
+    onFirstSellDone() {
+        const firstSellChecked = !this.state.firstSellChecked;
+        const firstSell = Number(this.state.firstSell);
+        const totalSell = (firstSellChecked) ? 
+                        Number(this.state.totalSell) + firstSell
+                        : Number(this.state.totalSell) - firstSell;
+        
+        this.setState({
+            firstSellChecked: firstSellChecked,
+            totalSell: totalSell,
+        }, ()=>{this.updateRoundInfoToScreen()});
+    }
+
+    onSecondSellDone() {
+        const secondSellChecked = !this.state.secondSellChecked;
+        const secondSell = Number(this.state.secondSell);
+        const totalSell = (secondSellChecked) ? 
+                        Number(this.state.totalSell) + secondSell
+                        : Number(this.state.totalSell) - secondSell;
+        
+        this.setState({
+            secondSellChecked: secondSellChecked,
+            totalSell: totalSell,
+        }, ()=>{this.updateRoundInfoToScreen()});
+    }
+
     render() {
         const bIsFirstCheckboxDisabled = (this.state.bIsCompleted || this.state.secondChecked);
         const bIsSecondCheckboxDisabled = (this.state.bIsCompleted || !this.state.firstChecked);
@@ -101,69 +126,71 @@ export default class EachRound extends React.Component<Props> {
 
         return (
             <Card>
-                <Card.Title>[Round {this.state.roundIndex}]</Card.Title>
-                <Card.Divider />
+                <Card.Title containerStyle={{borderTopLeftRadius:5, padding:0}} style={styles.cardTitle} >Round {this.state.roundIndex}</Card.Title>
                 <View style={styles.container}>
-                    <View style={styles.oneLine}>
-                        <View style={styles.lineBox}>
-                            <View style={styles.oneLine}>
-                                <Checkbox
-                                    initialValue={this.state.firstChecked}
-                                    disabled={bIsFirstCheckboxDisabled}
-                                    onChange={()=>this.onFirstItemChecked()} 
-                                    color="primary" 
-                                    label="1차 매수"/>
-                                <ReactNativeNumberFormat value={this.state.firstBuy} />
-                            </View>
-                    
-                            <View style={styles.oneLine}>
-                                <Checkbox
-                                    initialValue={this.state.secondChecked}
-                                    disabled={bIsSecondCheckboxDisabled}
-                                    onChange={()=>this.onSecondItemChecked()}
-                                    color="primary" 
-                                    label="2차 매수"/>
-                                <ReactNativeNumberFormat value={this.state.secondBuy} />
-                            </View>
-                        </View>
+                    <View style={styles.fullLine}>
+                        <Text style={styles.normalText}>매수 가능 금액 </Text>
+                        <ReactNativeNumberFormat value = {this.state.currentMoney} />
+                    </View>
+                    <View style={styles.fullLine}>
+                        <CheckBox
+                            title='1차 매수'
+                            containerStyle={{ padding:0, backgroundColor: "transparent", borderWidth: 0 }}
+                            size={15}
+                            center={true}
+                            checked={this.state.firstChecked}
+                            disabled={bIsFirstCheckboxDisabled}
+                            onPress={()=>this.onFirstItemChecked()}/>
+                        <ReactNativeNumberFormat value={this.state.firstBuy} />
+                    </View>
+            
+                    <View style={styles.fullLine}>
+                        <CheckBox
+                            title='2차 매수'
+                            containerStyle={{ padding:0, backgroundColor: "transparent", borderWidth: 0 }}
+                            size={15}
+                            checked={this.state.secondChecked}
+                            disabled={bIsSecondCheckboxDisabled}
+                            onPress={()=>this.onSecondItemChecked()} />
+                        <ReactNativeNumberFormat value={this.state.secondBuy} />
                     </View>
 
-                    <View style={styles.oneLine}>
-                        <Text style={styles.normalText}>현금 보유 금액</Text>
-                        <ReactNativeNumberFormat value={this.state.currentMoney} />
+                    <View style={styles.fullLine}>
+                        <Text style={styles.normalText}>매도 완료 금액 </Text>
+                        <ReactNativeNumberFormat value = {this.state.totalSell} />
                     </View>
 
-                    <Card.Divider />
-                    {this.state.firstChecked && <View style={styles.oneLine}>
-                        <Text style={styles.normalText}>1차 매도</Text>
-                        <View style={styles.inputBox}>
-                            <Input
-                                value={String(this.state.firstSell)}
-                                editable={bIsFirstInputBoxEditable}
-                                returnKeyType='done'
-                                type='numeric'
-                                clearButtonMode='always'
-                                onChangeText={(newValue)=>this.onChangeFirstSell(newValue)}
-                                placeholder="1차 매도 미실시" />
-                        </View>
-                    </View>}
-                    {this.state.firstChecked && <View style={styles.oneLine}>
-                        <Text style={styles.normalText}>2차 매도</Text>
-                        <View style={styles.inputBox}>
-                            <Input
-                                value={String(this.state.secondSell)}
-                                editable={bIsSecondInputBoxEditable}
-                                returnKeyType='done'
-                                type='numeric'
-                                clearButtonMode='always'
-                                onChangeText={(newValue)=>this.onChangeSecondSell(newValue)}
-                                placeholder={"2차 매도 미실시"} />
-                        </View>
-                    </View>}
-                    {this.state.firstChecked && <View style={styles.oneLine}>
-                        <Text style={styles.normalText}>매도금 합계</Text>
-                        <ReactNativeNumberFormat value={this.state.totalSell} />
-                    </View>}
+                    <View style={styles.fullLine}>
+                        <CheckBox
+                            title='1차 매도'
+                            containerStyle={{ padding:0, backgroundColor: "transparent", borderWidth: 0 }}
+                            size={15}
+                            center={true}
+                            checked={this.state.firstSellChecked}
+                            onPress={()=>this.onFirstSellDone()}/>
+                        <Input
+                            value={String(this.state.firstSell)}
+                            returnKeyType='done'
+                            type='numeric'
+                            clearButtonMode='while-editing'
+                            onChangeText={(newValue)=>this.onChangeFirstSell(newValue)}/>
+                    </View>
+
+                    <View style={styles.fullLine}>
+                        <CheckBox
+                            title='2차 매도'
+                            containerStyle={{ padding:0, backgroundColor: "transparent", borderWidth: 0 }}
+                            size={15}
+                            center={true}
+                            checked={this.state.secondSellChecked}
+                            onPress={()=>this.onSecondSellDone()}/>
+                        <Input
+                            value={String(this.state.secondSell)}
+                            returnKeyType='done'
+                            type='numeric'
+                            clearButtonMode='while-editing'
+                            onChangeText={(newValue)=>this.onChangeSecondSell(newValue)}/>
+                    </View>
                 </View>
             </Card>
         );
@@ -173,26 +200,32 @@ export default class EachRound extends React.Component<Props> {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingLeft: 20
+    },
+    cardTitle: {
+        fontWeight: 'bold',
+        fontSize: 15,
+        
     },
     oneLine: {
         flexDirection: "row",
         alignItems:"center",
         paddingBottom: 10,
     },
+    fullLine: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
     roundTitle: {
         alignItems: 'center',
         paddingBottom : 10,
-    },
-    lineBox: {
-        flex:4,
     },
     inputBox: {
         paddingLeft: 30,
         paddingRight: 30,
     },
     normalText: {
-        fontSize: 20,
+        fontSize: 15,
     },
     button: {
         width : 100,

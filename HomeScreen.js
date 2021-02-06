@@ -7,15 +7,15 @@ export default class HomeScreen extends React.Component<Props> {
         return (
         
         <ImageBackground source={require('./assets/amenstock_logo.png')} style={styles.bgImage}>
-        <View style={styles.container}>
-                        <Button 
-                        onPress={() => this.props.navigation.navigate('추가 매수 시뮬레이션')}>
-                    추가 매수 시뮬레이션</Button>
-                    <Button 
-                        onPress={() => this.props.navigation.navigate('종목 전환 시뮬레이션')}>
-                    종목 전환 시뮬레이션</Button>
-                    </View>
-                    </ImageBackground>
+            <View style={styles.container}>
+                <Button 
+                onPress={() => this.props.navigation.navigate('추가 매수 시뮬레이션')}>
+                추가 매수 시뮬레이션</Button>
+                <Button 
+                onPress={() => this.props.navigation.navigate('종목 전환 시뮬레이션')}>
+                종목 전환 시뮬레이션</Button>
+            </View>
+        </ImageBackground>
     )};
 }
 

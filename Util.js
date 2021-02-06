@@ -10,7 +10,7 @@ export function ReactNativeNumberFormat({ value }) {
         displayType={'text'}
         thousandSeparator={true}
         prefix={''}
-        renderText={formattedValue => <Text style={styles.currencyText}>{formattedValue}</Text>} // <--- Don't forget this!
+        renderText={formattedValue => <Text style={styles.currencyText}>{formattedValue}원</Text>} // <--- Don't forget this!
       />
     );
 }
@@ -37,7 +37,7 @@ export function ReactNativeNumberFormat({ value }) {
 
 const styles = StyleSheet.create({
     currencyText: {
-        fontSize: 20,
+        fontSize: 15,
         paddingLeft: 30,
     },
     inputBasic: {
